@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Events — Outreach Board</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5f2eb;
+      --surface: #fffefb;
+      --ink: #1c1a16;
+      --ink-muted: #6b6659;
+      --accent: #2d6a4f;
+      --accent-light: #d8f3dc;
+      --accent2: #e07a36;
+      --border: #ddd9ce;
+      --tag-bg: #e9e5db;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--ink);
+      color: #f5f2eb;
+      padding: 2rem 2.5rem 1.75rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    header .brand { flex: 1; min-width: 200px; }
+    header .brand h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    header .brand p {
+      font-size: 0.85rem;
+      color: #a09a8e;
+      margin-top: 0.3rem;
+      font-weight: 300;
+    }
+    .sheet-config {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      min-width: 260px;
+    }
+    .sheet-config label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #a09a8e;
+    }
+    .sheet-config-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .sheet-config input {
+      flex: 1;
+      background: #2e2b26;
+      border: 1px solid #3e3b35;
+      border-radius: 6px;
+      color: #f5f2eb;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      padding: 0.5rem 0.75rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .sheet-config input:focus { border-color: var(--accent); }
+    .sheet-config input::placeholder { color: #5a5750; }
+    .btn-load {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-load:hover { background: #235c41; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 2.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 380px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.4;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+
+    select.filter-select {
+      padding: 0.55rem 2rem 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6659' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.65rem center;
+    }
+
+    .view-toggle { display: flex; gap: 0.25rem; margin-left: auto; }
+    .view-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 0.45rem 0.65rem;
+      cursor: pointer;
+      color: var(--ink-muted);
+      transition: all 0.15s;
+      display: flex; align-items: center;
+    }
+    .view-btn.active, .view-btn:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      padding: 0.6rem 2.5rem;
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .status-bar strong { color: var(--ink); }
+    .week-nav { display: flex; gap: 0.5rem; align-items: center; margin-left: auto; }
+    .week-nav button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: var(--ink-muted);
+      transition: all 0.15s;
+    }
+    .week-nav button:hover { border-color: var(--accent); color: var(--accent); }
+    .week-nav span { font-size: 0.8rem; font-weight: 600; }
+
+    /* ── MAIN ── */
+    main { padding: 1.75rem 2.5rem 4rem; max-width: 1300px; margin: 0 auto; }
+
+    /* ── LIST VIEW ── */
+    .day-group { margin-bottom: 2rem; }
+    .day-label {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: var(--ink);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--ink);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+    .day-label .day-count {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--ink-muted);
+      background: var(--tag-bg);
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+    }
+
+    .event-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 0.75rem 1rem;
+      align-items: start;
+    }
+    .event-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(45,106,79,0.08); }
+    .event-card.expanded { border-color: var(--accent); }
+
+    .event-time {
+      text-align: center;
+      background: var(--accent-light);
+      border-radius: 8px;
+      padding: 0.5rem 0.4rem;
+      min-width: 70px;
+    }
+    .event-time .time-hm {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    .event-time .time-ampm {
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .event-body { overflow: hidden; }
+    .event-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.05rem;
+      line-height: 1.3;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+    }
+    .event-meta {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .event-meta span { display: flex; align-items: center; gap: 0.25rem; }
+
+    .host-tag {
+      background: var(--tag-bg);
+      border-radius: 99px;
+      padding: 0.15rem 0.6rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+    .host-tag.named { background: #fde8d3; color: #b85c1a; }
+
+    .expand-icon {
+      color: var(--ink-muted);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+    }
+    .event-card.expanded .expand-icon { transform: rotate(180deg); }
+
+    .event-desc {
+      display: none;
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.875rem;
+      color: var(--ink-muted);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      grid-column: 1 / -1;
+    }
+    .event-card.expanded .event-desc { display: block; }
+
+    /* ── GRID VIEW ── */
+    .grid-view { display: none; }
+    .grid-view.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+    .grid-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .grid-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(45,106,79,0.1); }
+
+    .grid-card .gc-date {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .grid-card .gc-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1rem;
+      line-height: 1.35;
+      color: var(--ink);
+      margin-bottom: 0.6rem;
+    }
+    .grid-card .gc-location {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .grid-card .gc-desc {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── EMPTY / LOADING ── */
+    .state-msg {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--ink-muted);
+    }
+    .state-msg svg { margin-bottom: 1rem; opacity: 0.3; }
+    .state-msg h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .state-msg p { font-size: 0.88rem; max-width: 420px; margin: 0 auto; line-height: 1.6; }
+
+    /* ── INSTRUCTIONS PANEL ── */
+    .instructions {
+      background: #fff9f0;
+      border: 1px solid #f0dfc0;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+    .instructions h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent2);
+    }
+    .instructions ol { padding-left: 1.25rem; }
+    .instructions li { margin-bottom: 0.4rem; }
+    .instructions code {
+      background: #f0dfc0;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+    }
+    .instructions .close-btn {
+      float: right;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: var(--ink-muted);
+      margin-top: -0.25rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      header, .toolbar, .status-bar, main { padding-left: 1rem; padding-right: 1rem; }
+      .event-card { grid-template-columns: 65px 1fr auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Weekly Events Board</h1>
+    <p id="last-updated">Connect your Google Sheet to load live events</p>
+  </div>
+  <div class="sheet-config">
+    <label>Google Sheet CSV URL</label>
+    <div class="sheet-config-row">
+      <input type="text" id="sheet-url" placeholder="Paste published CSV link here…" />
+      <button class="btn-load" onclick="loadSheet()">Load</button>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Search events, locations…" oninput="renderAll()" />
+  </div>
+  <select class="filter-select" id="location-filter" onchange="renderAll()">
+    <option value="">All locations</option>
+  </select>
+  <select class="filter-select" id="host-filter" onchange="renderAll()">
+    <option value="">All hosts</option>
+  </select>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btn-list" onclick="setView('list')" title="List view">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+    <button class="view-btn" id="btn-grid" onclick="setView('grid')" title="Grid view">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="status-bar">
+  <span id="count-label">No events loaded</span>
+  <div class="week-nav" id="week-nav" style="display:none">
+    <button onclick="shiftWeek(-1)">← Prev week</button>
+    <span id="week-label"></span>
+    <button onclick="shiftWeek(1)">Next week →</button>
+    <button onclick="clearWeek()" style="margin-left:0.5rem;">Show all</button>
+  </div>
+</div>
+
+<main id="main-content">
+  <div class="instructions" id="instructions">
+    <button class="close-btn" onclick="document.getElementById('instructions').style.display='none'">✕</button>
+    <h3>How to connect your Google Sheet</h3>
+    <ol>
+      <li>Open your Google Sheet and go to <strong>File → Share → Publish to web</strong></li>
+      <li>In the dropdowns, select <strong>your sheet tab</strong> and <strong>Comma-separated values (.csv)</strong></li>
+      <li>Click <strong>Publish</strong> and copy the link</li>
+      <li>Paste the link into the <strong>Google Sheet CSV URL</strong> box in the header above and click <strong>Load</strong></li>
+    </ol>
+    <p style="margin-top:0.75rem; color:var(--ink-muted); font-size:0.82rem;">
+      Your sheet must have these columns: <code>Start_time</code>, <code>location_name</code>, <code>title</code>, <code>description</code>, and optionally the host name columns.
+      Every time someone opens this page it will pull the latest data — just keep your sheet updated!
+    </p>
+  </div>
+  <div class="state-msg" id="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <h2>No events yet</h2>
+    <p>Paste your Google Sheet CSV link above and hit Load to pull in your weekly events.</p>
+  </div>
+  <div id="list-view"></div>
+  <div class="grid-view" id="grid-view"></div>
+</main>
+
+<script>
+  let allEvents = [];
+  let currentView = 'list';
+  let weekOffset = null; // null = show all
+
+  // ── PARSE DATE ──────────────────────────────────────────────────────────
+  function parseDate(raw) {
+    if (!raw) return null;
+    // "Wednesday, January 21, 2026 at 2:30 PM"
+    let m = raw.match(/(\w+),\s+(\w+ \d+,\s+\d+)\s+at\s+([\d:]+\s*[AP]M)/i);
+    if (m) return new Date(`${m[2]} ${m[3]}`);
+    // ISO-like: "2026-03-14 13:00:00"
+    let m2 = raw.match(/(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
+    if (m2) return new Date(`${m2[1]}T${m2[2]}`);
+    let d = new Date(raw);
+    return isNaN(d) ? null : d;
+  }
+
+  function fmtTime(dt) {
+    if (!dt) return { hm: '?', ampm: '' };
+    let h = dt.getHours(), m = dt.getMinutes();
+    let ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return { hm: m ? `${h}:${String(m).padStart(2,'0')}` : `${h}`, ampm };
+  }
+
+  function fmtDay(dt) {
+    if (!dt) return 'Unknown date';
+    return dt.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  }
+
+  function weekKey(dt) {
+    if (!dt) return null;
+    let d = new Date(dt);
+    d.setHours(0,0,0,0);
+    let day = d.getDay();
+    d.setDate(d.getDate() - day); // Sun
+    return d.toISOString().slice(0,10);
+  }
+
+  // ── LOAD CSV ─────────────────────────────────────────────────────────────
+  function loadSheet() {
+    const url = document.getElementById('sheet-url').value.trim();
+    if (!url) return alert('Please paste a Google Sheet CSV URL first.');
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('count-label').textContent = 'Loading…';
+    fetch(url)
+      .then(r => { if (!r.ok) throw new Error('Network error'); return r.text(); })
+      .then(csv => {
+        allEvents = parseCSV(csv);
+        populateFilters();
+        weekOffset = null;
+        renderAll();
+        document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleString();
+        localStorage.setItem('eventsSheetUrl', url);
+      })
+      .catch(err => {
+        alert('Could not load sheet. Make sure it is published publicly as CSV.\n\n' + err.message);
+        document.getElementById('count-label').textContent = 'Error loading data';
+      });
+  }
+
+  // ── SIMPLE CSV PARSER ────────────────────────────────────────────────────
+  function parseCSV(text) {
+    const lines = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === '\n' && !inQ) { lines.push(cur); cur = ''; continue; }
+      cur += c;
+    }
+    if (cur) lines.push(cur);
+
+    const rows = lines.map(l => {
+      const cols = []; let f = '', q = false;
+      for (let i = 0; i <= l.length; i++) {
+        const c = l[i];
+        if (c === '"') { q = !q; continue; }
+        if ((c === ',' || c === undefined) && !q) { cols.push(f.trim()); f = ''; continue; }
+        f += (c || '');
+      }
+      return cols;
+    });
+
+    // Re-parse properly handling multi-line fields
+    const rawLines = text.split('\n');
+    const events = [];
+    const headers = rawLines[0].split(',').map(h => h.replace(/"/g,'').trim());
+    
+    // Use a proper multi-line CSV parser
+    const fullRows = [];
+    let currentRow = [];
+    let currentField = '';
+    let inQuote = false;
+    const fullText = text;
+    
+    for (let i = 0; i < fullText.length; i++) {
+      const ch = fullText[i];
+      const next = fullText[i+1];
+      if (ch === '"') {
+        if (inQuote && next === '"') { currentField += '"'; i++; }
+        else inQuote = !inQuote;
+      } else if (ch === ',' && !inQuote) {
+        currentRow.push(currentField);
+        currentField = '';
+      } else if ((ch === '\n' || (ch === '\r' && next === '\n')) && !inQuote) {
+        if (ch === '\r') i++;
+        currentRow.push(currentField);
+        fullRows.push(currentRow);
+        currentRow = [];
+        currentField = '';
+      } else {
+        currentField += ch;
+      }
+    }
+    if (currentField || currentRow.length) { currentRow.push(currentField); fullRows.push(currentRow); }
+
+    const hdrs = fullRows[0].map(h => h.trim());
+    const idx = name => hdrs.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
+    const iTime = idx('start_time');
+    const iLoc = idx('location_name');
+    const iFirst = idx('first_name');
+    const iLast = idx('last_name');
+    const iTitle = idx('title');
+    const iDesc = idx('description');
+
+    for (let r = 1; r < fullRows.length; r++) {
+      const row = fullRows[r];
+      if (!row || row.length < 2) continue;
+      const title = iTitle >= 0 ? row[iTitle] : '';
+      if (!title) continue;
+      const raw = iTime >= 0 ? row[iTime] : '';
+      const dt = parseDate(raw);
+      const firstName = iFirst >= 0 ? row[iFirst] : '';
+      const lastName = iLast >= 0 ? row[iLast] : '';
+      const host = (firstName && lastName) ? `${firstName} ${lastName}` : (firstName || lastName || 'Community Buzz');
+      events.push({
+        title,
+        dt,
+        rawTime: raw,
+        location: iLoc >= 0 ? row[iLoc] : '',
+        host,
+        isCommunity: host === 'Community Buzz' || host.toLowerCase().includes('community'),
+        desc: iDesc >= 0 ? row[iDesc] : '',
+      });
+    }
+    return events.sort((a,b) => (a.dt||0) - (b.dt||0));
+  }
+
+  // ── FILTERS ──────────────────────────────────────────────────────────────
+  function populateFilters() {
+    const locs = [...new Set(allEvents.map(e => e.location).filter(Boolean))].sort();
+    const hosts = [...new Set(allEvents.map(e => e.host).filter(Boolean))].sort();
+    const lSel = document.getElementById('location-filter');
+    const hSel = document.getElementById('host-filter');
+    lSel.innerHTML = '<option value="">All locations</option>' + locs.map(l => `<option>${l}</option>`).join('');
+    hSel.innerHTML = '<option value="">All hosts</option>' + hosts.map(h => `<option>${h}</option>`).join('');
+  }
+
+  function filteredEvents() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const loc = document.getElementById('location-filter').value;
+    const host = document.getElementById('host-filter').value;
+    return allEvents.filter(e => {
+      if (loc && e.location !== loc) return false;
+      if (host && e.host !== host) return false;
+      if (q && !`${e.title} ${e.location} ${e.desc} ${e.host}`.toLowerCase().includes(q)) return false;
+      if (weekOffset !== null) {
+        const wk = weekKey(e.dt);
+        if (wk !== targetWeekKey()) return false;
+      }
+      return true;
+    });
+  }
+
+  function targetWeekKey() {
+    if (weekOffset === null) return null;
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - d.getDay() + weekOffset * 7);
+    return d.toISOString().slice(0,10);
+  }
+
+  // ── WEEK NAV ─────────────────────────────────────────────────────────────
+  function shiftWeek(delta) {
+    if (weekOffset === null) weekOffset = 0;
+    weekOffset += delta;
+    renderAll();
+  }
+  function clearWeek() { weekOffset = null; renderAll(); }
+
+  function updateWeekLabel() {
+    const nav = document.getElementById('week-nav');
+    const lbl = document.getElementById('week-label');
+    if (weekOffset === null) { nav.style.display = 'none'; return; }
+    nav.style.display = 'flex';
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay() + weekOffset * 7);
+    const end = new Date(d); end.setDate(d.getDate() + 6);
+    const fmt = d2 => d2.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    lbl.textContent = `${fmt(d)} – ${fmt(end)}`;
+  }
+
+  // ── RENDER ───────────────────────────────────────────────────────────────
+  function renderAll() {
+    updateWeekLabel();
+    const events = filteredEvents();
+    document.getElementById('count-label').innerHTML = `<strong>${events.length}</strong> event${events.length !== 1 ? 's' : ''} shown`;
+    document.getElementById('week-nav').style.display = allEvents.length ? 'flex' : 'none';
+
+    if (!events.length && allEvents.length) {
+      document.getElementById('list-view').innerHTML = '';
+      document.getElementById('grid-view').innerHTML = '';
+      document.getElementById('empty-state').style.display = 'block';
+      document.getElementById('empty-state').querySelector('h2').textContent = 'No matching events';
+      document.getElementById('empty-state').querySelector('p').textContent = 'Try adjusting your filters or search term.';
+      return;
+    }
+    document.getElementById('empty-state').style.display = 'none';
+
+    renderList(events);
+    renderGrid(events);
+  }
+
+  function renderList(events) {
+    const groups = {};
+    events.forEach(e => {
+      const key = e.dt ? fmtDay(e.dt) : 'Unknown date';
+      (groups[key] = groups[key] || []).push(e);
+    });
+    const html = Object.entries(groups).map(([day, evts]) => `
+      <div class="day-group">
+        <div class="day-label">${day} <span class="day-count">${evts.length}</span></div>
+        ${evts.map((e, i) => eventCard(e, `${day}-${i}`)).join('')}
+      </div>`).join('');
+    document.getElementById('list-view').innerHTML = html;
+  }
+
+  function eventCard(e, id) {
+    const t = fmtTime(e.dt);
+    const hostClass = e.isCommunity ? '' : 'named';
+    const desc = e.desc ? e.desc.replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+    return `
+      <div class="event-card" id="card-${id}" onclick="toggleCard('card-${id}')">
+        <div class="event-time">
+          <div class="time-hm">${t.hm}</div>
+          <div class="time-ampm">${t.ampm}</div>
+        </div>
+        <div class="event-body">
+          <div class="event-title">${e.title}</div>
+          <div class="event-meta">
+            <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${e.location}</span>
+            <span class="host-tag ${hostClass}">${e.host}</span>
+          </div>
+          ${desc ? `<div class="event-desc">${desc}</div>` : ''}
+        </div>
+        ${desc ? `<svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>` : '<div></div>'}
+      </div>`;
+  }
+
+  function toggleCard(id) {
+    const c = document.getElementById(id);
+    if (c) c.classList.toggle('expanded');
+  }
+
+  function renderGrid(events) {
+    const html = events.map(e => {
+      const desc = e.desc ? e.desc.replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+      const dateStr = e.dt ? e.dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) + ' · ' + fmtTime(e.dt).hm + ' ' + fmtTime(e.dt).ampm : '';
+      return `
+        <div class="grid-card">
+          <div class="gc-date">${dateStr}</div>
+          <div class="gc-title">${e.title}</div>
+          <div class="gc-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${e.location}</div>
+          ${desc ? `<div class="gc-desc">${desc}</div>` : ''}
+        </div>`;
+    }).join('');
+    document.getElementById('grid-view').innerHTML = html;
+  }
+
+  // ── VIEW TOGGLE ──────────────────────────────────────────────────────────
+  function setView(v) {
+    currentView = v;
+    document.getElementById('list-view').style.display = v === 'list' ? 'block' : 'none';
+    const gv = document.getElementById('grid-view');
+    gv.classList.toggle('active', v === 'grid');
+    document.getElementById('btn-list').classList.toggle('active', v === 'list');
+    document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+  }
+
+  // ── AUTO-LOAD SAVED URL ──────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('eventsSheetUrl');
+    if (saved) {
+      document.getElementById('sheet-url').value = saved;
+      loadSheet();
+    }
+    setView('list');
+  });
+</script>
+</body>
+</html>
