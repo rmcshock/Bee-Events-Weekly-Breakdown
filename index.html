@@ -771,14 +771,23 @@
   }
 
   // ── AUTO-LOAD SAVED URL ──────────────────────────────────────────────────
-  window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('eventsSheetUrl');
-    if (saved) {
-      document.getElementById('sheet-url').value = saved;
-      loadSheet();
-    }
-    setView('list');
-  });
+ window.addEventListener('DOMContentLoaded', () => {
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKJ6S2A7ZPjrEAO_MgSNO-816CEgB3dLTFdc-8c-zMljQPwfjGsfl892vQAO7dRbL1drDm-D4agPiG/pub?gid=1654942641&single=true&output=csv";
+
+  document.getElementById('sheet-url').value = SHEET_URL;
+
+  fetch(SHEET_URL)
+    .then(r => r.text())
+    .then(csv => {
+      allEvents = parseCSV(csv);
+      populateFilters();
+      renderAll();
+      document.getElementById('last-updated').textContent =
+        'Updated ' + new Date().toLocaleString();
+    });
+
+  setView('list');
+});
 </script>
 </body>
 </html>
