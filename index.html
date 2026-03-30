@@ -629,9 +629,15 @@
     if (currentField || currentRow.length) { currentRow.push(currentField); fullRows.push(currentRow); }
 
     const hdrs = fullRows[0].map(h => h.trim());
-    const idx = name => hdrs.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
+    const idx = name => {
+      // exact match first
+      let i = hdrs.findIndex(h => h.toLowerCase() === name.toLowerCase());
+      if (i >= 0) return i;
+      // fallback: partial match
+      return hdrs.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
+    };
     const iTime = idx('start_time');
-    const iLoc = idx('location_name');
+    const iLoc = idx('location');
     const iFirst = idx('first_name');
     const iLast = idx('last_name');
     const iTitle = idx('title');
