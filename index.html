@@ -283,6 +283,37 @@
     }
     .host-tag.named { background: #fde8d3; color: #b85c1a; }
 
+    .event-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.6rem;
+      padding: 0.35rem 0.75rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .event-link:hover { background: #235c41; }
+    .gc-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.75rem;
+      padding: 0.3rem 0.65rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .gc-link:hover { background: #235c41; }
+
     .expand-icon {
       color: var(--ink-muted);
       transition: transform 0.2s;
@@ -605,6 +636,7 @@
     const iLast = idx('last_name');
     const iTitle = idx('title');
     const iDesc = idx('description');
+    const iSlug = idx('url_slug');
 
     for (let r = 1; r < fullRows.length; r++) {
       const row = fullRows[r];
@@ -624,6 +656,7 @@
         host,
         isCommunity: host === 'Community Buzz' || host.toLowerCase().includes('community'),
         desc: iDesc >= 0 ? row[iDesc] : '',
+        slug: iSlug >= 0 ? row[iSlug] : '',
       });
     }
     return events.sort((a,b) => (a.dt||0) - (b.dt||0));
@@ -734,7 +767,7 @@
             <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${e.location}</span>
             <span class="host-tag ${hostClass}">${e.host}</span>
           </div>
-          ${desc ? `<div class="event-desc">${desc}</div>` : ''}
+          ${desc ? `<div class="event-desc">${desc}${e.slug ? `<br/><a class="event-link" href="https://joinbee.app/go/a/${e.slug}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Event</a>` : ''}</div>` : e.slug ? `<div class="event-desc"><a class="event-link" href="https://joinbee.app/go/a/${e.slug}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Event</a></div>` : ''}
         </div>
         ${desc ? `<svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>` : '<div></div>'}
       </div>`;
@@ -755,6 +788,7 @@
           <div class="gc-title">${e.title}</div>
           <div class="gc-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${e.location}</div>
           ${desc ? `<div class="gc-desc">${desc}</div>` : ''}
+          ${e.slug ? `<a class="gc-link" href="https://joinbee.app/go/a/${e.slug}" target="_blank" rel="noopener"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Event</a>` : ''}
         </div>`;
     }).join('');
     document.getElementById('grid-view').innerHTML = html;
@@ -771,23 +805,14 @@
   }
 
   // ── AUTO-LOAD SAVED URL ──────────────────────────────────────────────────
- window.addEventListener('DOMContentLoaded', () => {
-  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKJ6S2A7ZPjrEAO_MgSNO-816CEgB3dLTFdc-8c-zMljQPwfjGsfl892vQAO7dRbL1drDm-D4agPiG/pub?gid=1654942641&single=true&output=csv";
-
-  document.getElementById('sheet-url').value = SHEET_URL;
-
-  fetch(SHEET_URL)
-    .then(r => r.text())
-    .then(csv => {
-      allEvents = parseCSV(csv);
-      populateFilters();
-      renderAll();
-      document.getElementById('last-updated').textContent =
-        'Updated ' + new Date().toLocaleString();
-    });
-
-  setView('list');
-});
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('eventsSheetUrl');
+    if (saved) {
+      document.getElementById('sheet-url').value = saved;
+      loadSheet();
+    }
+    setView('list');
+  });
 </script>
 </body>
 </html>
