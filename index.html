@@ -564,7 +564,7 @@
         weekOffset = null;
         renderAll();
         document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleString();
-        localStorage.setItem('eventsSheetUrl', url);
+        storageSet('eventsSheetUrl', url);
       })
       .catch(err => {
         alert('Could not load sheet. Make sure it is published publicly as CSV.\n\n' + err.message);
@@ -810,13 +810,18 @@
     document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
   }
 
+  // ── SAFE STORAGE ─────────────────────────────────────────────────────────
+  function storageGet(key) {
+    try { return localStorage.getItem(key); } catch(e) { return null; }
+  }
+  function storageSet(key, val) {
+    try { localStorage.setItem(key, val); } catch(e) {}
+  }
   // ── AUTO-LOAD SAVED URL ──────────────────────────────────────────────────
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTKJ6S2A7ZPjrEAO_MgSNO-816CEgB3dLTFdc-8c-zMljQPwfjGsfl892vQAO7dRbL1drDm-D4agPiG/pub?gid=1654942641&single=true&output=csv';
   window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('eventsSheetUrl');
-    if (saved) {
-      document.getElementById('sheet-url').value = saved;
-      loadSheet();
-    }
+    document.getElementById('sheet-url').value = SHEET_URL;
+    loadSheet();
     setView('list');
   });
 </script>
